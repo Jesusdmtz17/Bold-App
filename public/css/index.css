@@ -5,15 +5,11 @@
     --color-light-grey: #969696;
     --color-background: #e5e7ef;
     --color-white: #ffffff;
-    --body-font-size: clamp(12px, 1.6vw, 16px);
-    --title-table-font-size: clamp(18px, 2.2vw, 22px);
-    --medium-title-table-font-size: clamp(14px, 1.8vw, 18px);
-    --bigger-font-size: clamp:(28px, 3.6vw, 36px);
     --spacing: 40px;
     --spacing-2: 26px;
     --spacing-3: 18px;
-    --spacing-4: 12x;
-    --spacing-5: 8px;
+    --spacing-4: 13px;
+    --spacing-5: 9px;
 }
 
 html {
@@ -42,13 +38,13 @@ a {
 body {
     margin: 0;
     padding: 0;
-    font-size: var(--body-font-size);
+    font-size: clamp(12px, 1.6vw, 16px);
     color: var(--color-light-grey);
     background: var(--color-background);
 }
 
 header {
-    background: linear-gradient(to right,#111e6c 0%, #111e6c 35%,#ef434e 150%);
+    background: linear-gradient(to right,var(--color-blue) 0%, var(--color-blue) 35%,var(--color-red) 150%);
     padding: var(--spacing-2) var(--spacing);
     display: flex;
     flex-wrap: wrap;
@@ -62,8 +58,9 @@ footer {
 }
 
 .wrapper {
-    max-width: 1240px;
+    max-width: 1280px;
     margin: 0 auto;
+    padding: var(--spacing-2);
 }
 .main-menu {
     display: inline-block;
@@ -78,14 +75,135 @@ footer {
 .container-sales {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-3) var(--spacing-4);
+    gap: var(--spacing-3) var(--spacing-2);
 }
 .total-sales {
-    width: 33.333%;
+    width: calc(33.333% - 13px);
 }
-.filters {
-    width: 66.666%;
+.total-sales .total-sales-title {
+    padding: var(--spacing-4) var(--spacing-3);
+    margin: 0;
+    background: linear-gradient(82deg,var(--color-blue) -63%,var(--color-red) 139%);
+    border-radius: 18px 18px 0px 0px;
+    color: var(--color-white);
+    text-align: left;
+    font-size: clamp(12px, 1.6vw, 16px);
+    font-weight: 500;
 }
-.summary-sales {
+.total-sales .total-sales-content {
+    padding: var(--spacing-2) var(--spacing-2);
+    margin: 0;
+    background: var(--color-white);
+    border-radius: 0px 0px 18px 18px;
+}
+.total-sales .total-sales-content .total-sales-price {
+    background: linear-gradient(82deg,var(--color-blue) -63%,var(--color-red) 139%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: clamp(28px, 3.6vw, 36px);
+    font-weight: 600;
+    text-align: center;
+}
+.total-sales .total-sales-content .total-sales-date {
+    font-size: clamp(12px, 1.4vw, 14px);
+    text-align: center;
+    color: var(--color-blue);
+    margin: 4px 0px;
+}
+.filters-sales {
+    width: calc(66.666% - 13px);
+}
+.list-sales {
     width: 100%;
 }
+.filters-sales .container-filters-date {
+    display: flex;
+    background: var(--color-white);
+    padding: calc(var(--spacing-4) / 4);
+    border-radius: calc(var(--spacing-5) / 2);
+  }
+  .filters-sales .container-filters-date .filterDate {
+    flex-basis: 100%;
+    text-align: center;
+  }
+  .filters-sales .container-filters-date .filterDate label {
+    color:  var(--color-blue);
+    width: 100%;
+    display: inline-block;
+    line-height: 2.25;
+    border-radius: var(--spacing-3);
+    transition: all .2s ease-in-out;
+    cursor: pointer;
+  }
+  .filters-sales .container-filters-date .filterDate label:hover,
+  .filters-sales .container-filters-date .filterDate input:checked + label {
+    background: var(--color-background);
+  }
+  .container-filters-type {
+    position: relative;
+    margin: var(--spacing-3) 0 0 auto;
+    border-radius: var(--spacing-5) var(--spacing-5);
+    background: var(--color-white);
+    width: 100%;
+    max-width: 200px;
+    max-height: 36px;
+    overflow: hidden;
+    transition: all .5s ease;
+  }
+  .title-filter-type {
+    display: inline-block;
+    line-height: 2.25;
+    width: 100%;
+    text-align: center;
+    font-size: clamp(12px, 1.6vw, 16px);
+    font-weight: 400;
+    color: var(--color-blue);
+    cursor: pointer;
+    margin: 0px
+  }
+  .close-filter {
+    background: transparent;
+    position: absolute;
+    top: 4px;
+    right: 0;
+    border: none;
+    outline: none;
+    font-size: clamp(22px, 2.8vw, 28px);
+    line-height: 1;
+    font-weight: 400;
+    display: none;
+  }
+  .container-filters-type.active {
+    max-height: 1000px;
+    max-width: 250px;
+  }
+  .container-filters-type.active .close-filter {
+    display: block;
+    cursor: pointer;
+  }
+  .filtertype {
+    text-align: left;
+    padding: var(--spacing-5) var(--spacing-3);
+  }
+  .filtertype label {
+    cursor: pointer;
+    color: var(--color-blue);
+    font-weight: 500;
+  }
+  .apply-filter {
+    background-color: var(--color-red);
+    color: var(--color-white);
+    display: block;
+    border: none;
+    border-radius: var(--spacing-2);
+    padding: var(--spacing-5);
+    width: 100%;
+    max-width: 120px;
+    margin: var(--spacing-3) auto;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: all .5s ease;
+  }
+  .apply-filter:hover {
+    opacity: 1;
+  }  

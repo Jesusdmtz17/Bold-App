@@ -2,7 +2,7 @@ window.boldApp = window.boldApp || {
     dataSales: null,
     strings: {
         summaryInfo: {
-            title: "Tus ventas de __*__"
+            title: "Total de ventas de __*__"
         },
         tooltipFilters: {
             title: 'Filtrar',
@@ -43,6 +43,7 @@ window.boldApp = window.boldApp || {
         
     },
     getData_BoldApp: function(){
+        //function for get data from json file
         async function getJson() {
             let response = await fetch('./public/javascript/boldApp.json', {
                 headers: {
@@ -60,6 +61,7 @@ window.boldApp = window.boldApp || {
         })();
     },
     getCookie: function(cname) {
+        //function to get cookie from browser
         let name = cname + "=";
         let decodedCookie = decodeURIComponent(document.cookie);
         let ca = decodedCookie.split(';');
@@ -75,12 +77,21 @@ window.boldApp = window.boldApp || {
         return null;
     },
     setCookie: function(cname, cvalue, exdays) {
+        //function to set cookie into browser
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
     var expires = "expires=" + d.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
     },
     getDate : function(date){
+        //function to generate date object
+        Date.prototype.getWeekNumber = function(){
+            var d = new Date(Date.UTC(this.getFullYear(), this.getMonth(), this.getDate()));
+            var dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1)/7)
+          };
         let currentDate;
         if(date){
             currentDate = new Date(date);
@@ -88,22 +99,25 @@ window.boldApp = window.boldApp || {
             currentDate = new Date();
         }
         
+
         let currentWeek = currentDate => {
-            let oneJan = new Date(currentdate.getFullYear(),0,1);
-            let numberOfDays = Math.floor((currentdate - oneJan) / (24 * 60 * 60 * 1000));
-            let result = Math.ceil(( currentdate.getDay() + 1 + numberOfDays) / 7);
+            let oneJan = new Date(currentDate.getFullYear(),0,1);
+            let numberOfDays = Math.floor((currentDate - oneJan) / (24 * 60 * 60 * 1000));
+            let result = Math.ceil(( currentDate.getDay() + 1 + numberOfDays) / 7);
             return result;
         },
         response = {
             currentDay: currentDate.getDate(),
-            currentWeek: currentWeek,
+            currentWeek: currentDate.getWeekNumber(),
             currentMonth: currentDate.getMonth(),
             currentYear: currentDate.getFullYear()
         }
         return response;
     },
     initInfo: function(currentFilter, currentTypeFilter){
-        let content_title = this.strings.summaryInfo.title, 
+        //function to init content from json of boldApp, also is used to update view after filter
+        let content_title = this.strings.summaryInfo.title,
+        table_title = this.strings.salesTable.title, 
         copy_date = '',
         currentDate = this.getDate(),
         totalAmmount = 0,
@@ -129,26 +143,61 @@ window.boldApp = window.boldApp || {
                         switch(currentTypeFilter){
                             case 'datafono':
                                 if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'datafono'){
-                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
                                     content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                                 }
                                 break;
                             case 'link':
                                 if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'link de pago'){
-                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
                                     content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                                 }
                                 break;
                             default: 
-                                totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                }
                                 content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                         }
                     }
                 }
                 totalSalesDate = `${this.strings.months[currentDate.currentMonth]} ${currentDate.currentDay}`;
                 break;
-            case 'thisWeek': copy_date = this.strings.dateFilters.week;
-                
+            case 'thisWeek': 
+                copy_date = this.strings.dateFilters.week;
+                for(cobro in this.dataSales.cobros){
+                    let cobroDate = this.getDate(this.dataSales.cobros[cobro].fecha);
+                    if(cobroDate.currentWeek === currentDate.currentWeek && cobroDate.currentYear === currentDate.currentYear){
+                        switch(currentTypeFilter){
+                            case 'datafono':
+                                if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'datafono'){
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
+                                    content_table += this.setTableRow(this.dataSales.cobros[cobro]);
+                                }
+                                break;
+                            case 'link':
+                                if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'link de pago'){
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
+                                    content_table += this.setTableRow(this.dataSales.cobros[cobro]);
+                                }
+                                break;
+                            default: 
+                                if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                }
+                                content_table += this.setTableRow(this.dataSales.cobros[cobro]);
+                        }
+                    }
+                }
+                totalSalesDate = `${this.strings.months[currentDate.currentMonth]} ${currentDate.currentDay}`;
                 break;
             case 'thisMonth':  
                 copy_date = this.strings.months[currentDate.currentMonth];
@@ -158,18 +207,24 @@ window.boldApp = window.boldApp || {
                         switch(currentTypeFilter){
                             case 'datafono':
                                 if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'datafono'){
-                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
                                     content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                                 }
                                 break;
                             case 'link':
                                 if(this.dataSales.cobros[cobro].metodo_de_pago.tipo === 'link de pago'){
-                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                        totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                    }
                                     content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                                 }
                                 break;
                             default: 
-                                totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                if(this.dataSales.cobros[cobro].estado == 'exitoso'){
+                                    totalAmmount += parseFloat(this.dataSales.cobros[cobro].monto);
+                                }
                                 content_table += this.setTableRow(this.dataSales.cobros[cobro]);
                         }
                     }
@@ -178,6 +233,7 @@ window.boldApp = window.boldApp || {
                 break;
         }
         content_title = content_title.replace('__*__', copy_date);
+        table_title = table_title.replace('__*__', copy_date);
         content_table += `</tbody></table>`
 
         //writing content for summary info
@@ -186,12 +242,13 @@ window.boldApp = window.boldApp || {
         document.querySelector(this.selectors.summaryInfo.date).innerHTML = totalSalesDate;
 
         //writing content for section sales
-        document.querySelector(this.selectors.listSales.title).innerHTML = content_title;
+        document.querySelector(this.selectors.listSales.title).innerHTML = table_title;
         document.querySelector(this.selectors.listSales.tableWrapper).innerHTML = content_table;
 
             
     },
     initDateFilters: function(currentFilter){
+        //function to write date filters
         let currentDate = this.getDate(),
         currentMonth = currentDate.currentMonth;
         let content = `<div class="filterDate">
@@ -211,18 +268,19 @@ window.boldApp = window.boldApp || {
         
     },
     initTypeFilters: function(currentTypeFilter){
+        //function to write type filters
         let content = `<h3 class="title-filter-type">${this.strings.tooltipFilters.title}</h3>
                        <button class="close-filter">×</button>
                        <div class="filtertype">
-                        <input hidden ${currentTypeFilter === 'datafono' ? 'checked' : ''} name="filter-type" value="datafono" type="radio" id="datafonoFilter">
+                        <input ${currentTypeFilter === 'datafono' ? 'checked' : ''} name="filter-type" value="datafono" type="radio" id="datafonoFilter">
                         <label for="datafonoFilter">${this.strings.tooltipFilters.datafono}</label>
                        </div>
-                       <div class="filterType">
-                        <input hidden ${currentTypeFilter === 'link' ? 'checked' : ''} name="filter-type" value="link" type="radio" id="linkFilter">
+                       <div class="filtertype">
+                        <input ${currentTypeFilter === 'link' ? 'checked' : ''} name="filter-type" value="link" type="radio" id="linkFilter">
                         <label for="linkFilter">${this.strings.tooltipFilters.link_pago}</label>
                        </div>
-                       <div class="filterDate">
-                        <input hidden ${currentTypeFilter === 'all' ? 'checked' : ''} name="filter-type" value="all" type="radio" id="allFilter">
+                       <div class="filtertype">
+                        <input ${currentTypeFilter === 'all' ? 'checked' : ''} name="filter-type" value="all" type="radio" id="allFilter">
                         <label for="allFilter">${this.strings.tooltipFilters.all}</label>
                        </div>
                        <button class="apply-filter">${this.strings.tooltipFilters.applyFilter}</buttton>`;
@@ -230,6 +288,7 @@ window.boldApp = window.boldApp || {
         document.querySelector(this.selectors.tooltipFilters).innerHTML = content;
     },
     setTableRow: function(row){
+        //function to generate table row of sale
         let content = `<tr>
                         <td><span class="icon-${row.metodo_de_pago.tipo === 'datafono' ? 'datafono':'link'}"></span> ${row.estado === 'exitoso' ? this.strings.salesTable.successfulCollect: this.strings.salesTable.unsuccessfulCollect}</td>
                         <td>${row.fecha}</td>
@@ -242,6 +301,7 @@ window.boldApp = window.boldApp || {
         return content;
     },
     setEventsListeners: function(){
+        //function to setup event listeners
         document.querySelectorAll(this.selectors.dateFilters + ' input[name="filter-date"]').forEach(element =>{ 
             element.addEventListener('change', event => {
                 let dateSelected = event.target.value,
@@ -259,17 +319,23 @@ window.boldApp = window.boldApp || {
                     let typeSelected = document.querySelector(this.selectors.tooltipFilters + ' input[name="filter-type"]:checked').value,
                     dateSelected = document.querySelector(this.selectors.dateFilters + ' input[name="filter-date"]:checked').value;
 
-                    console.log(dateSelected,typeSelected)
-
-                    //reinit portal info
+                    //re-init portal info
                     this.initInfo(dateSelected,typeSelected);
 
                     //set cookie for save session selected
-                    this.setCookie('_current_type_filter', dateSelected, 1);
+                    this.setCookie('_current_type_filter', typeSelected, 1);
+                }
+                if(event.target.classList.contains('title-filter-type')){
+                    event.target.closest('.container-filters-type').classList.add('active');
+                }
+                if(event.target.classList.contains('close-filter')){
+                    event.target.closest('.container-filters-type').classList.remove('active');
                 }
             })
+        
     },
     init: function(){
+        //master function
         this.getData_BoldApp(); 
         setTimeout(()=>{
             let currentFilter = this.getCookie('_current_date_filter') || 'today';
