@@ -278,7 +278,7 @@ window.boldApp = window.boldApp || {
             this.initDateFilters(currentFilter);
             this.initTypeFilters(currentTypeFilter);
             this.setEventsListeners();
-        }, 2000);
+        }, 1000);
     }
 };
 
